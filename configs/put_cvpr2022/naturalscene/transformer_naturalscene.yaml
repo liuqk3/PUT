@@ -3,7 +3,7 @@ model:
   params:
     n_layer: 35
     content_seq_len: 1024
-    n_embd: 1024 # embedding dim
+    n_embd: 512 # embedding dim
     n_head: 8
 
     num_token: 512
@@ -20,7 +20,7 @@ model:
     content_codec_config:
       target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchVQGAN
       params:
-        ckpt_path: OUTPUT/patch_vqgan_ImageNet_LinearEnc2PatchDec2_ResBlock8_n512n512d256_euclidean_ema_noPos_ECLossDisc5000_ZeroMask0.3_EraseIm0.2_pconvMask0.7_bs16g16/checkpoint/000099e_500399iter.pth
+        ckpt_path: OUTPUT/pvqvae_naturalscene/checkpoint/last.pth
         trainable: False
         token_shape: [32, 32]
         quantizer_config:
@@ -51,16 +51,16 @@ model:
             res_block_bottleneck: 2
             stride: 8
             up_layer_with_image: True
-            add_noise_to_image: False
             encoder_downsample_layer: conv
+
 solver:
   find_unused_parameters: False
   base_lr: 0.0
   adjust_lr: none # not adjust lr according to total batch_size
-  max_epochs: 150
+  max_epochs: 200
   save_epochs: 5
   validation_epochs: 1
-  sample_iterations: epoch # 10000 # 5000      # how many iterations to perform sampling once ?
+  sample_iterations: 10000      # how many iterations to perform sampling once ?
   optimizers_and_schedulers: # a list of configures, so we can config several optimizers and schedulers
   - name: transformer # default is None
     optimizer:
@@ -73,24 +73,27 @@ solver:
       params:
         min_lr: 1.0e-5
         warmup_lr: 3.0e-4 # the lr to be touched after warmup
-        warmup: 5000 
+        warmup: 2000 
 
 
 dataloader:
   data_root: data
-  batch_size: 8
+  batch_size: 6
   num_workers: 1
   train_datasets:
     - target: image_synthesis.data.image_list_dataset.ImageListDataset
       params:
-        name: imagenet/train
-        image_end_with: JPEG
+        name: naturalscene
+        image_end_with: bmp,jpg,jpeg,pgm,png,ppm,tif,tiff,webp,JPEG
+
         provided_mask_name: irregular-mask/testing_mask_dataset
-        use_provided_mask_ratio: ['0.2', '0.6']
         use_provided_mask: 0.8
+        use_provided_mask_ratio: ['0.2', '0.6']
+
         mask: 1.0
-        mask_low_to_high: 0.1
+        mask_low_to_high: 0.05
         mask_low_size: [32, 32]
+        zero_mask: 0.0
         multi_image_mask: False 
         return_data_keys: [image, mask]
         stroken_mask_params:
@@ -99,27 +102,29 @@ dataloader:
           maxLength: 100
           maxBrushWidth: 30
           minBrushWidth: 10
-          keep_ratio: [0.3, 0.6]
+          keep_ratio: [0.0, 0.5] # [0.3, 0.7]
           min_area: 64 # 8*8 we set the receptive field as the min masked area
         im_preprocessor_config:
           target: image_synthesis.data.utils.image_preprocessor.SimplePreprocessor
           params:
             size: [256, 256]
-            smallest_max_size: 264
+            smallest_max_size: 288
             random_crop: True
             horizon_flip: True
   validation_datasets:
     - target: image_synthesis.data.image_list_dataset.ImageListDataset
       params:
-        name: imagenet/val
-        image_end_with: JPEG
+        name: naturalscene/val
+        image_end_with: bmp,jpg,jpeg,pgm,png,ppm,tif,tiff,webp,JPEG
 
         provided_mask_name: irregular-mask/testing_mask_dataset
-        use_provided_mask_ratio: ['0.2', '0.6']
         use_provided_mask: 0.8
+        use_provided_mask_ratio: ['0.2', '0.6']
+
         mask: 1.0
-        mask_low_to_high: 0.0
+        mask_low_to_high: 0.0 # 0.5
         mask_low_size: [32, 32]
+        zero_mask: 0.0
         multi_image_mask: False 
         return_data_keys: [image, mask]
         stroken_mask_params:
@@ -128,7 +133,7 @@ dataloader:
           maxLength: 100
           maxBrushWidth: 30
           minBrushWidth: 10
-          keep_ratio: [0.3, 0.6]
+          keep_ratio: [0.0, 0.5] # [0.3, 0.7]
           min_area: 64 # 8*8 we set the receptive field as the min masked area
         
         im_preprocessor_config:

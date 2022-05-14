@@ -8,18 +8,18 @@
 
 - Results on FFHQ
 
-<!-- <img src="asset/ffhq_results.png" width=700 height=400/> -->
-![](asset/ffhq_results.png)
+<img src="asset/ffhq_results.png" width=700 height=420/>
+<!-- ![](asset/ffhq_results.png) -->
 
 - Results on Places2
 
-<!-- <img src="asset/places_results.png" width=700 height=400/> -->
-![](asset/places_results.png)
+<img src="asset/places_results.png" width=700 height=420/>
+<!-- ![](asset/places_results.png) -->
 
 - Results on ImageNet
 
-<!-- <img src="asset/imagenet_results.png" width=700 height=900/> -->
-![](asset/imagenet_results.png)
+<img src="asset/imagenet_results.png" width=710 height=900/>
+<!-- ![](asset/imagenet_results.png) -->
 
 ## Introduction
 
@@ -63,7 +63,8 @@ The trained logs, models, and sampled images are all saved to `./OUTPUT/exp_name
 
 
 ## Inference
-We provide several inference functions in `./scripts/inference.py`. 
+We provide several inference functions in `./scripts/inference.py`. First of all, you need to train a model or download the pretrained model from [OneDrive](https://mailustceducn-my.sharepoint.com/:f:/g/personal/liuqk3_mail_ustc_edu_cn/EjmcxzE9T_pJunLoVKCxgm4BJt6VRM7cBL2cf3BsSdOarw?e=a3Ynvu), 
+or [BaiduYunpan](https://pan.baidu.com/s/1QoxqW66au7wVRqk3POQung) (code: `6po2`) and put them into `./OUTPUT/`.
 
 1) For image reconstruction:
 
@@ -99,7 +100,8 @@ sh scripts/metrics/cal_metrics.sh path/to/gt path/to/result
 
 The diversity can be evaluted by:
 
-```python scripts/metrics/cal_lpips.py  --path1 path/to/results_dir  --device cuda:0
+```
+python scripts/metrics/cal_lpips.py  --path1 path/to/results_dir  --device cuda:0
 ```
 
 

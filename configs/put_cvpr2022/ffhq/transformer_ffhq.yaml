@@ -20,7 +20,7 @@ model:
     content_codec_config:
       target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchVQGAN
       params:
-        ckpt_path: OUTPUT/patch_vqgan_FFHQ_LinearEnc2PatchDec2_ResBlock8_n512n512d256_euclidean_ema_noPos_ECLossDisc5000_ZeroMask0.3_EraseIm0.2_pconvMask0.7_69_bs16g8/checkpoint/last.pth
+        ckpt_path: OUTPUT/pvqvae_ffhq/checkpoint/last.pth
         trainable: False
         token_shape: [32, 32]
         combine_rec_and_gt: False #TODO False

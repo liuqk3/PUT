@@ -47,7 +47,6 @@ except ImportError:
 
 
 from image_synthesis.utils.fid.inception import InceptionV3
-from image_synthesis.modeling.modules.clip import clip
 # from .inception import InceptionV3
 from image_synthesis.utils.misc import get_all_file
 from image_synthesis.utils.misc import instantiate_from_config
@@ -433,6 +432,7 @@ def calculate_fid_given_paths(path1, path_prefix1, file_list1,
         block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[dims]
         model = InceptionV3([block_idx]).to(device)
     elif net == 'clip':
+        from image_synthesis.modeling.modules.clip import clip
         model, preprocess = clip.load('ViT-B/32', device=device, jit=False)
         setattr(model, 'preprocess', preprocess)
         assert dims == 512, 'For clip, the output dimensionality of feature is 512'

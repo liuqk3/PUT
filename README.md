@@ -107,7 +107,7 @@ python scripts/metrics/cal_lpips.py  --path1 path/to/results_dir  --device cuda:
 
 ## Citation
 
-If you find our paper/code are helpful to you, please cite:
+If you find our paper/code are helpful, please consider citing:
 
 ```
 @article{liu2022reduce,

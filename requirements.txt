@@ -1,33 +1,11 @@
 albumentations==0.5.2
-ftfy==5.9
 scikit_image==0.18.1
-six==1.15.0
-torchvision==0.8.2
 opencv_python==4.5.1.48
-scipy==1.6.1
-einops==0.3.0
-# DALL_E==0.1
-regex==2021.3.17
+opencv-python-headless==4.5.3.56
 tqdm==4.59.0
-requests==2.25.1
-attrs==20.3.0
-thop==0.0.31.post2005241907
 numpy==1.19.2
 matplotlib==3.3.4
-timm==0.4.5
-torch==1.7.1
-attr==0.3.1
-cryptography==3.4.7
-dataset==1.4.5
-deepspeed==0.3.14
-# h5py==3.2.1
-lmdb==1.1.1
 Pillow==8.2.0
 PyYAML==5.4.1
-# skimage==0.0
-tensorflow==2.4.1
-tfutil==0.8.1
-pyqt5==5.10
-# mpi4py==3.0.3
-kornia==0.5.0
 scikit-learn==0.24.2
+tensorboard==2.5.0 

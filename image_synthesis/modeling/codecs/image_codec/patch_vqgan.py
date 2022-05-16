@@ -11,8 +11,6 @@ from image_synthesis.modeling.modules.vqgan_loss.vqperceptual import VQLPIPSWith
 from image_synthesis.modeling.utils.misc import distributed_sinkhorn, get_token_type
 from image_synthesis.distributed.distributed import all_reduce, get_world_size
 from image_synthesis.modeling.modules.edge_connect.losses import EdgeConnectLoss
-from image_synthesis.modeling.modules.layers.partial_conv2d import PartialConv2d
-from image_synthesis.modeling.utils.misc import logits_top_k
 
 
 def value_scheduler(init_value, dest_value, step, step_range, total_steps, scheduler_type='cosine'):
@@ -460,12 +458,14 @@ class DownSample(nn.Module):
         self.partial_conv = partial_conv
         if self.downsample_type == 'conv':
             if self.partial_conv:
+                raise NotImplementedError
                 self.conv = PartialConv2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1) 
             else:
                 self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1) 
         else:
             assert self.downsample_type in ['bilinear', 'nearest', 'maxpool', 'avgpool'], 'upsample {} not implemented!'.format(self.downsample_type)
             if self.partial_conv:
+                raise NotImplementedError
                 self.conv = PartialConv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1) 
             else:
                 self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1)
@@ -537,6 +537,7 @@ class ConvResBlock(nn.Module):
                 nn.Conv2d(channel, in_channel, 1),
             )
         else:
+            raise NotImplementedError
             self.conv1 = PartialConv2d(in_channel, channel, kernel_size=3, padding=1)
             self.conv2 = PartialConv2d(channel, in_channel, kernel_size=3, padding=1) 
 
@@ -698,6 +699,7 @@ class EncoderInPatchConvDecoder2(nn.Module):
             # import pdb; pdb.set_trace()
             if l == len(out_channels):
                 if partial_conv:
+                    raise NotImplementedError
                     layers.append(PartialConv2d(in_ch_, out_ch_, kernel_size=3, stride=1, padding=1))
                 else:
                     layers.append(nn.Conv2d(in_ch_, out_ch_, kernel_size=3, stride=1, padding=1))
@@ -709,6 +711,7 @@ class EncoderInPatchConvDecoder2(nn.Module):
                         layers.append(DownSample(in_ch_, out_ch_, activate_before='relu', activate_after='none', downsample_type='conv', partial_conv=partial_conv))
                     elif downsample_layer == 'conv': # not recommented
                         if partial_conv:
+                            raise NotImplementedError
                             layers.append(PartialConv2d(in_ch_, out_ch_, kernel_size=4, stride=2, padding=1))
                         else:
                             layers.append(nn.Conv2d(in_ch_, out_ch_, kernel_size=4, stride=2, padding=1))

@@ -9,7 +9,7 @@ setup(
   description = 'code base for image synthesis',
   author = 'Qiankun Liu',
   author_email = 'liuqk3@outlook.com',
-  url = 'https://github.com/liuqk3/image-synthesis',
+  url = 'https://github.com/liuqk3/PUT',
   keywords = [
     'artificial intelligence',
     'attention mechanism',

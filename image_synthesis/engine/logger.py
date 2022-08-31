@@ -85,5 +85,6 @@ class Logger(object):
     def close(self):
         if self.is_primary:
             self.text_writer.close()
-            self.tb_writer.close()
+            if self.tb_writer is not None:
+                self.tb_writer.close()
 

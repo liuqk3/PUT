@@ -91,6 +91,26 @@ Please pay attentnion to some configurations within the function `inference_comp
 
 And the resules will be saved to `./RESULTS/exp_name`
 
+## Simpler Inference
+
+For image inpainting with provided/trained transformer model:
+
+```
+python scripts/inference_inpainting.py --func inference_inpainting \
+--name  OUTPUT/pvqvae_exp_name/checkpoint/last.pth \
+--input_res 256,256 \
+--num_token_per_iter 1 \                                                # if given like '1,2,5', the script will loop for each of them
+--num_token_for_sampling 50 \                                           # if given like '50,100', the script will loop for each of them
+--image_dir path/to/images \
+--mask_dir path/to/masks \
+--save_masked_image \                                                   # whether to save the masked images 
+--save_dir path/to/save \
+--num_sample 1 \                                                        # the number of inpainted results for each image-mask pair
+--gpu 0                                                                 # GPU ID to use. If not given, DDP is performed   
+```
+
+The resules will be saved to `./RESULTS/exp_name/path/to/save`
+
 ## Evaluation
 After some results have be generated, the metrics can be obtained by:
 

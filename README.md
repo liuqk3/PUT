@@ -1,6 +1,10 @@
 
 # Reduce Information Loss in Transformers for Pluralistic Image Inpainting
 
+## News
+[21/04/2024] The extension paper "Transformer based Pluralistic Image Completion with Reduced Information Loss" has been accepted to TPAMI 2024. The final PDF is avaliable on [arXiv](https://arxiv.org/abs/2404.00513). The improved PUT inpaints images with much better quality with 20x less inference time! The controllable image inpainting is also supported. In addition, more discussions are provided, including the comparison with some popular mask image modeling methods. The code will be updated when I am free. Please be patient.
+
+
 ## Overview
 ![](asset/pipeline.png)
 
@@ -130,6 +134,16 @@ python scripts/metrics/cal_lpips.py  --path1 path/to/results_dir  --device cuda:
 If you find our paper/code are helpful, please consider citing:
 
 ```
+# TPAMI paper
+@article{liu2024transformer,
+  title={Transformer based Pluralistic Image Completion with Reduced Information Loss},
+  author={Liu, Qiankun and Jiang, Yuqi and Tan, Zhentao and Chen, Dongdong and Fu, Ying and Chu, Qi and Hua, Gang and Yu, Nenghai},
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year={2024},
+  publisher={IEEE}
+}
+
+# CVPR paper
 @article{liu2022reduce,
   title={Reduce Information Loss in Transformers for Pluralistic Image Inpainting},
   author={Liu, Qiankun and Tan, Zhentao and Chen, Dongdong and Chu, Qi and Dai, Xiyang and Chen, Yinpeng and Liu, Mengchen and Yuan, Lu and Yu, Nenghai},

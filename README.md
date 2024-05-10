@@ -20,19 +20,19 @@
 
 - Results for resolution 256x256, uncontrollable.
 
-<img src="asset/results_256.png" width=700 height=550/>
+<img src="asset/results_256.jpg" width=700 height=550/>
 
 - Results for resolution 512x512, uncontrollable.
 
-<img src="asset/results_512.png" width=700 height=390/>
+<img src="asset/results_512.jpg" width=700 height=390/>
 
 - Results for resolution 256x256, controllable.
 
-<img src="asset/results_256_controllable.png" width=700 height=350/>
+<img src="asset/results_256_controllable.jpg" width=700 height=350/>
 
 - Effectiveness of unknown category strategy in controllable image inpainting.
 
-<img src="asset/results_256_unknown_category.png" width=400 height=230/>
+<img src="asset/results_256_unknown_category.jpg" width=400 height=230/>
 
 ## Introduction
 

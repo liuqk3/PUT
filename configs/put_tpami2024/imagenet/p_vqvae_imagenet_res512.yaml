@@ -1,0 +1,171 @@
+model:
+  target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchVQGAN
+  params:
+    trainable: True
+    token_shape: [32, 32]
+    im_process_info:
+      scale: [255.0, 255.0, 255.0]
+      mean: [0.485, 0.456, 0.406] # imagenet RGB mean
+      std: [0.229, 0.224, 0.225] # imagenet RGB std
+    quantizer_config:
+      target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.VectorQuantizer
+      params:
+        n_e: 9216
+        e_dim: 256
+        masked_embed_start: 8192
+        embed_ema: True
+        get_embed_type: retrive
+        distance_type: euclidean 
+
+        gumbel_sample: True
+        gumbel_sample_stop_step: -1
+        adjust_logits_for_gumbel: log
+        temperature_step_range: [0,5000]
+        temperature_init: 20
+        temperature_dest: 1.0e-6 # 0.0625 # 0.0625=1/16
+        gumbel_scale_init: 1.0
+        gumbel_scale_dest: 0.1
+        gumbel_scale_step_range: [5000, 5001]
+        gumbel_scale_scheduler_type: 'step'
+
+
+    encoder_config: 
+      target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchEncoder2
+      params:
+        in_ch: 3
+        res_ch: 256
+        out_ch: 256
+        num_res_block: 10
+        stride: 16
+    decoder_config:
+      target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchConvDecoder2
+      params:
+        in_ch: 256
+        out_ch: 3
+        res_ch: 256
+        num_res_block: 2
+        num_res_block_after_resolution_change: 2
+        stride: 16
+        up_layer_with_image: true
+        upsample_type: nearest
+    lossconfig:
+      target: image_synthesis.modeling.modules.edge_connect.losses.EdgeConnectLoss
+      params:
+        gan_loss: nsgan
+        g_gradient_loss_weight: 2.0
+        g_content_loss_weight: 0.08
+        g_style_loss_weight: 120.0
+        g_adv_loss_weight: 0.07
+        disc_start: 150000
+        content_start: 130000
+        style_start: 130000
+        gradient_start: 130000
+        norm_to_0_1: False
+        
+
+solver:
+  base_lr: 0.0
+  adjust_lr: none # not adjust lr according to total batch_size
+  max_epochs: 100
+  save_epochs: 5
+  validation_epochs: 1
+  sample_iterations: epoch     # how many iterations to perform sampling once ?
+  optimizers_and_schedulers: # a list of configures, so we can config several optimizers and schedulers
+  - name: generator 
+    optimizer:
+      target: torch.optim.AdamW
+      params: 
+        betas: !!python/tuple [0.9, 0.999]
+        eps: 1.0e-8
+        weight_decay: 1.0e-4
+    scheduler:
+      step_iteration: 1
+      target: image_synthesis.engine.lr_scheduler.CosineAnnealingLRWithWarmup
+      params:
+        min_lr: 1.0e-6
+        warmup_lr: 2.0e-4 # the lr to be touched after warmup
+        warmup: 5000 
+  - name: discriminator 
+    start_iteration: 150000 
+    optimizer:
+      target: torch.optim.AdamW
+      params: 
+        betas: !!python/tuple [0.9, 0.999]
+        eps: 1.0e-8
+        weight_decay: 1.0e-4
+    scheduler:
+      step_iteration: 1
+      target: image_synthesis.engine.lr_scheduler.CosineAnnealingLRWithWarmup
+      params:
+        min_lr: 1.0e-6
+        warmup_lr: 2.0e-5 # the lr to be touched after warmup
+        warmup: 5000 
+
+
+dataloader:
+  data_root: data
+  batch_size: 28 # one sample takes up 2.7G, bs=1 take up 4.8G
+  num_workers: 2
+  train_datasets:
+    - target: image_synthesis.data.image_list_dataset.ImageListDataset
+      params:
+        name: imagenet/train
+        image_end_with: JPEG
+
+        provided_mask_name: irregular-mask/testing_mask_dataset
+        use_provided_mask: 0.5
+        use_provided_mask_ratio: ['0.2', '0.6']
+
+        mask: 1.0
+        mask_low_to_high: 0.1
+        mask_low_size: [32, 32]
+        zero_mask: 0.95
+        multi_image_mask: False 
+        erase_image_with_mask: 0.15
+        return_data_keys: [image, mask, erase_mask]
+        stroken_mask_params:
+          maxVertex: 15
+          minVertex: 10
+          maxLength: 400
+          maxBrushWidth: 100
+          minBrushWidth: 40
+          keep_ratio: [0.0, 0.5] # [0.3, 0.7]
+          min_area: 256 # 16*16 we set the receptive field as the min masked area
+        im_preprocessor_config:
+          target: image_synthesis.data.utils.image_preprocessor.SimplePreprocessor
+          params:
+            size: [512, 512]
+            smallest_max_size: 528
+            random_crop: True
+            horizon_flip: True
+  validation_datasets:
+    - target: image_synthesis.data.image_list_dataset.ImageListDataset
+      params:
+        name: imagenet/val
+        image_end_with: JPEG
+
+        provided_mask_name: irregular-mask/testing_mask_dataset
+        use_provided_mask: 0.5
+        use_provided_mask_ratio: ['0.2', '0.6']
+
+        mask: 1.0
+        mask_low_to_high: 0.0 
+        mask_low_size: [32, 32]
+        zero_mask: 0.9
+        erase_image_with_mask: 0.15
+        multi_image_mask: False 
+        return_data_keys: [image, mask, erase_mask]
+        stroken_mask_params:
+          maxVertex: 15
+          minVertex: 10
+          maxLength: 400
+          maxBrushWidth: 100
+          minBrushWidth: 40
+          keep_ratio: [0.0, 0.5] # [0.3, 0.7]
+          min_area: 256 # 16*16 we set the receptive field as the min masked area
+        
+        im_preprocessor_config:
+          target: image_synthesis.data.utils.image_preprocessor.SimplePreprocessor
+          params:
+            size: [512, 512]
+            smallest_max_size: 512

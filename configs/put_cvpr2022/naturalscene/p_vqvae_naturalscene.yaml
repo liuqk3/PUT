@@ -1,0 +1,147 @@
+model:
+  target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchVQGAN
+  params:
+    trainable: True
+    token_shape: [32, 32]
+    quantizer_config:
+      target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.VectorQuantizer
+      params:
+        n_e: 1024
+        e_dim: 256
+        masked_embed_start: 512
+        embed_ema: True
+        get_embed_type: retrive
+        distance_type: euclidean
+    encoder_config: 
+      target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchEncoder2
+      params:
+        in_ch: 3
+        res_ch: 256
+        out_ch: 256
+        num_res_block: 8
+        res_block_bottleneck: 2
+        stride: 8
+    decoder_config:
+      target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchConvDecoder2
+      params:
+        in_ch: 256
+        out_ch: 3
+        res_ch: 256
+        num_res_block: 8
+        res_block_bottleneck: 2
+        stride: 8
+        up_layer_with_image: True
+        encoder_downsample_layer: conv
+    lossconfig:
+      target: image_synthesis.modeling.modules.edge_connect.losses.EdgeConnectLoss
+      params:
+        gan_loss: nsgan
+        g_gradient_loss_weight: 5.0
+        disc_start: 15000
+        content_start: 15000
+        style_start: 15000
+        gradient_start: 15000
+        
+solver:
+  base_lr: 0.0
+  adjust_lr: none # not adjust lr according to total batch_size
+  max_epochs: 100
+  save_epochs: 5
+  validation_epochs: 1
+  sample_iterations: epoch     # how many iterations to perform sampling once ?
+  optimizers_and_schedulers: # a list of configures, so we can config several optimizers and schedulers
+  - name: generator 
+    optimizer:
+      target: torch.optim.Adam
+      params: 
+        betas: !!python/tuple [0.0, 0.9]
+    scheduler:
+      step_iteration: 1
+      target: image_synthesis.engine.lr_scheduler.CosineAnnealingLRWithWarmup
+      params:
+        min_lr: 1.0e-6
+        warmup_lr: 2.0e-4 # the lr to be touched after warmup
+        warmup: 5000 
+  - name: discriminator 
+    # start_iteration: 5000 
+    optimizer:
+      target: torch.optim.Adam
+      params: 
+        betas: !!python/tuple [0.0, 0.9]
+    scheduler:
+      step_iteration: 1
+      target: image_synthesis.engine.lr_scheduler.CosineAnnealingLRWithWarmup
+      params:
+        min_lr: 1.0e-6
+        warmup_lr: 2.0e-5 # the lr to be touched after warmup
+        warmup: 5000 
+
+
+dataloader:
+  data_root: data
+  batch_size: 16
+  num_workers: 1
+  train_datasets:
+    - target: image_synthesis.data.image_list_dataset.ImageListDataset
+      params:
+        name: naturalscene
+        image_end_with: bmp,jpg,jpeg,pgm,png,ppm,tif,tiff,webp,JPEG
+
+        provided_mask_name: irregular-mask/testing_mask_dataset
+        use_provided_mask: 0.7
+        use_provided_mask_ratio: ['0.2', '0.6']
+
+
+        mask: 1.0
+        mask_low_to_high: 0.0 #0.5
+        mask_low_size: [32, 32]
+        zero_mask: 0.3
+        multi_image_mask: False 
+        erase_image_with_mask: 0.2
+        return_data_keys: [image, mask, erase_mask]
+        stroken_mask_params:
+          maxVertex: 10
+          minVertex: 5
+          maxLength: 100
+          maxBrushWidth: 30
+          minBrushWidth: 10
+          keep_ratio: [0.0, 0.5] # [0.3, 0.7]
+          min_area: 64 # 8*8 we set the receptive field as the min masked area
+        im_preprocessor_config:
+          target: image_synthesis.data.utils.image_preprocessor.SimplePreprocessor
+          params:
+            size: [256, 256]
+            smallest_max_size: 288
+            random_crop: True
+            horizon_flip: True
+  validation_datasets:
+    - target: image_synthesis.data.image_list_dataset.ImageListDataset
+      params:
+        name: naturalscene/val
+        image_end_with: bmp,jpg,jpeg,pgm,png,ppm,tif,tiff,webp,JPEG
+
+        provided_mask_name: irregular-mask/testing_mask_dataset
+        use_provided_mask: 0.7
+        use_provided_mask_ratio: ['0.2', '0.6']
+
+        mask: 1.0
+        mask_low_to_high: 0.0 # 0.5
+        mask_low_size: [32, 32]
+        zero_mask: 0.3
+        erase_image_with_mask: 0.2
+        multi_image_mask: False 
+        return_data_keys: [image, mask, erase_mask]
+        stroken_mask_params:
+          maxVertex: 10
+          minVertex: 5
+          maxLength: 100
+          maxBrushWidth: 30
+          minBrushWidth: 10
+          keep_ratio: [0.0, 0.5] # [0.3, 0.7]
+          min_area: 64 # 8*8 we set the receptive field as the min masked area
+        
+        im_preprocessor_config:
+          target: image_synthesis.data.utils.image_preprocessor.SimplePreprocessor
+          params:
+            size: [256, 256]
+            smallest_max_size: 256

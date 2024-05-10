@@ -5,6 +5,14 @@
 
 [21/04/2024] The extension paper "Transformer based Pluralistic Image Completion with Reduced Information Loss" has been accepted to TPAMI 2024. The final PDF is avaliable on [arXiv](https://arxiv.org/abs/2404.00513). The improved PUT inpaints images with much better quality with 20x less inference time! The controllable image inpainting is also supported. In addition, more discussions are provided, including the comparison with some popular mask image modeling methods. The code will be updated when I am free. Please be patient.
 
+## Introduction
+
+This repo. is the official implementation of our CVPR 2022 paper [Reduce Information Loss in Transformers for Pluralistic Image Inpainting](https://arxiv.org/abs/2205.05076) and TPAMI 2024 paper [Transformer based Pluralistic Image Completion with Reduced Information Loss](https://arxiv.org/abs/2404.00513). It is also a codebase for several tasks, especially friend to image synthesis tasks. 
+
+In our interal works, we have re-implented several works with the help of this repo., including [ICT](https://github.com/raywzy/ICT), [DALL-E](https://arxiv.org/abs/2102.12092), [Taming-transformers](https://github.com/CompVis/taming-transformers), [Edge-Connect](https://github.com/knazeri/edge-connect), and so on. 
+
+Enjoy the code and find its convience to produce more awesome works!
+
 ## Overview
 ### Pipeline for uncontrollable image inpainting
 <!-- ![](asset/pipeline_uncontrollable.png) -->
@@ -34,13 +42,7 @@
 
 <img src="asset/results_256_unknown_category.jpg" width=400 height=230/>
 
-## Introduction
 
-This repo. is the official implementation of our CVPR 2022 paper [Reduce Information Loss in Transformers for Pluralistic Image Inpainting](https://arxiv.org/abs/2205.05076) and TPAMI 2024 paper [Transformer based Pluralistic Image Completion with Reduced Information Loss](https://arxiv.org/abs/2404.00513). It is also a codebase for several tasks, especially friend to image synthesis tasks. 
-
-In our interal works, we have re-implented several works with the help of this repo., including [ICT](https://github.com/raywzy/ICT), [DALL-E](https://arxiv.org/abs/2102.12092), [Taming-transformers](https://github.com/CompVis/taming-transformers), [Edge-Connect](https://github.com/knazeri/edge-connect), and so on. 
-
-Enjoy the code and find its convience to produce more awesome works!
 
 
 ## Data preparation

@@ -1,29 +1,38 @@
 
-# Reduce Information Loss in Transformers for Pluralistic Image Inpainting
 
 ## News
+[10/05/2024] The main branch has been updated to support our TPAMI2024 paper. Currently, only the uncontrollable image inpainting models are provided. The models and the codes for controllable image inpainting will come soon. Please be patient. The origin repository for CVPR2022 paper is avaliable at this [url](https://github.com/liuqk3/PUT/tree/cvpr2022).
+
 [21/04/2024] The extension paper "Transformer based Pluralistic Image Completion with Reduced Information Loss" has been accepted to TPAMI 2024. The final PDF is avaliable on [arXiv](https://arxiv.org/abs/2404.00513). The improved PUT inpaints images with much better quality with 20x less inference time! The controllable image inpainting is also supported. In addition, more discussions are provided, including the comparison with some popular mask image modeling methods. The code will be updated when I am free. Please be patient.
 
-
 ## Overview
-![](asset/pipeline.png)
+### Pipeline for uncontrollable image inpainting
+<!-- ![](asset/pipeline_uncontrollable.png) -->
+<img src="asset/pipeline_uncontrollable.png" width=700 height=250/>
+
+## Pipeline for controllable image inpainting
+<!-- ![](asset/pipeline_controllable.png) -->
+<img src="asset/pipeline_controllable.png" width=400 height=150/>
+
+
 
 ##  Some results
 
-- Results on FFHQ
+- Results for resolution 256x256, uncontrollable.
 
-<img src="asset/ffhq_results.png" width=700 height=420/>
-<!-- ![](asset/ffhq_results.png) -->
+<img src="asset/results_256.png" width=700 height=550/>
 
-- Results on Places2
+- Results for resolution 512x512, uncontrollable.
 
-<img src="asset/places_results.png" width=700 height=420/>
-<!-- ![](asset/places_results.png) -->
+<img src="asset/results_512.png" width=700 height=390/>
 
-- Results on ImageNet
+- Results for resolution 256x256, controllable.
 
-<img src="asset/imagenet_results.png" width=710 height=900/>
-<!-- ![](asset/imagenet_results.png) -->
+<img src="asset/results_256_controllable.png" width=700 height=350/>
+
+- Effectiveness of unknown category strategy in controllable image inpainting.
+
+<img src="asset/results_256_unknown_category.png" width=400 height=230/>
 
 ## Introduction
 

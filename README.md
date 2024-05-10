@@ -102,7 +102,7 @@ python scripts/inference.py --func inference_inpainting \
 --num_sample 1 \                                                        # the number of inpainted results for each image-mask pair
 --gpu 0                                                                 # GPU ID to use. If not given, DDP is performed   
 ```
-The resules will be saved to `./RESULTS/transformer_exp_name/path/to/save`. Please refer [scripts/inference_commands_cvpr2022.sh](scripts/inference_commands_cvpr2022.sh) and [scripts/inference_commands_tpami2024.sh](scripts/inference_commands_tpami2024.sh) for more details.
+The results will be saved to `./RESULTS/transformer_exp_name/path/to/save`. Please refer [scripts/inference_commands_cvpr2022.sh](scripts/inference_commands_cvpr2022.sh) and [scripts/inference_commands_tpami2024.sh](scripts/inference_commands_tpami2024.sh) for more details.
 
 ## Evaluation
 After some results have be generated, the metrics can be obtained by:

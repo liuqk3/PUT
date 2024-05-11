@@ -29,8 +29,6 @@ data/deepfashion
 data/segmentation
 data/sketch
 data/inpainting-image-mask
-data/sketch
-data/segmentation
 data/tophost-portrait_retinaface_results_940909.json
 image_synthesis/modeling/modules/sparse_matmul/build
 image_synthesis/modeling/modules/sparse_matmul/*.egg-info

@@ -1,0 +1,156 @@
+model:
+  target: image_synthesis.modeling.models.masked_image_inpainting_transformer.MaskedImageInpaintingTransformer
+  params:
+    content_seq_len: 1024
+    n_layer: 12 # number of transformer blocks
+    dim: 768 # embedding dim
+    num_heads: 12
+    learn_mask_emb: True
+    num_token: 8192
+    act_layer: GELU2
+    input_feature_type: origin
+
+    attn_content_with_mask: False
+    
+    drop_path: 0.1 # follow PeCo
+    random_quantize: 0.3
+    weight_decay: 0.05
+    
+    loss_config:
+      target: image_synthesis.modeling.modules.losses.poly_loss.PolyLoss
+      params:
+        epsilons: [1]
+
+    content_codec_config:
+      target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchVQGAN
+      params:
+        ckpt_path: OUTPUT/tpami_p_vqvae_naturalscene_res512/checkpoint/last.pth
+        trainable: False
+        token_shape: [32, 32]
+        decoder_config:
+          params:
+            in_ch: 256
+            num_res_block: 2
+            num_res_block_after_resolution_change: 2
+            out_ch: 3
+            res_ch: 256
+            stride: 16
+            up_layer_with_image: true
+            upsample_type: nearest
+          target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchConvDecoder2
+        encoder_config:
+          params:
+            in_ch: 3
+            num_res_block: 10
+            out_ch: 256
+            res_ch: 256
+            stride: 16
+          target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchEncoder2
+        quantizer_config:
+          target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.VectorQuantizer
+          params:
+            distance_type: euclidean
+            e_dim: 256
+            embed_ema: true
+            get_embed_type: retrive
+            masked_embed_start: 8192
+            n_e: 9216
+
+
+solver:
+  find_unused_parameters: False
+  base_lr: 0.0
+  adjust_lr: none # not adjust lr according to total batch_size
+  max_epochs: 600
+  save_epochs: 20
+  validation_epochs: 10
+  sample_iterations: 37152 # about 30 epochs      # how many iterations to perform sampling once ?
+  optimizers_and_schedulers: # a list of configures, so we can config several optimizers and schedulers
+  - name: transformer # default is None
+    optimizer:
+      target: torch.optim.AdamW
+      params: 
+        betas: !!python/tuple [0.9, 0.999]
+    scheduler:
+      step_iteration: 1
+      target: image_synthesis.engine.lr_scheduler.CosineAnnealingLRWithWarmup
+      params:
+        min_lr: 1.0e-5
+        warmup_lr: 1.5e-3 # 5.0e-4 for BEiT, 1.5e-3 for PeCo, the lr to be touched after warmup
+        warmup: 24768 # about 20 epochs
+
+dataloader:
+  data_root: data
+  batch_size: 12 # bs=1 takes up 5.5G, bs=6 takes up 17.5G, one sample takes about 2G
+  num_workers: 2
+  train_datasets:
+    - target: image_synthesis.data.image_list_dataset.ImageListDataset
+      params:
+        name: naturalscene
+        image_end_with: bmp,jpg,jpeg,pgm,png,ppm,tif,tiff,webp,JPEG
+
+        provided_mask_name: irregular-mask/testing_mask_dataset
+        use_provided_mask: 0.4
+        use_provided_mask_ratio: ['0.2', '0.6']
+
+        mask: 1.0
+        mask_low_to_high: 0.1
+        mask_low_size: [32, 32]
+        zero_mask: 0.0
+        multi_image_mask: False 
+        return_data_keys: [image, mask]
+        stroken_mask_params:
+          maxVertex: 15
+          minVertex: 10
+          maxLength: 300
+          maxBrushWidth: 120
+          minBrushWidth: 30
+          keep_ratio: [0.3, 0.6] # [0.3, 0.7]
+          min_area: 256 # 16*16 we set the receptive field as the min masked area
+          minRectangle: 0
+          maxRectangle: 3
+          
+        im_preprocessor_config:
+          target: image_synthesis.data.utils.image_preprocessor.SimplePreprocessor
+          params:
+            size: [512, 512]
+            smallest_max_size: 
+            random_crop: True
+            horizon_flip: True
+            random_spatial_ratio: 0.2
+            keep_origin_spatial_ratio: 0.3
+
+  validation_datasets:
+    - target: image_synthesis.data.image_list_dataset.ImageListDataset
+      params:
+        name: naturalscene/val
+        image_end_with: bmp,jpg,jpeg,pgm,png,ppm,tif,tiff,webp,JPEG
+
+        provided_mask_name: irregular-mask/testing_mask_dataset
+        use_provided_mask: 0.4
+        use_provided_mask_ratio: ['0.2', '0.6']
+
+        mask: 1.0
+        mask_low_to_high: 0.0 # 0.5
+        mask_low_size: [32, 32]
+        zero_mask: 0.0
+        multi_image_mask: False 
+        return_data_keys: [image, mask]
+        stroken_mask_params:
+          maxVertex: 15
+          minVertex: 10
+          maxLength: 300
+          maxBrushWidth: 120
+          minBrushWidth: 30
+          keep_ratio: [0.2, 0.6] # [0.3, 0.7]
+          min_area: 256 # 16*16 we set the receptive field as the min masked area
+          minRectangle: 0
+          maxRectangle: 3
+        im_preprocessor_config:
+          target: image_synthesis.data.utils.image_preprocessor.SimplePreprocessor
+          params:
+            size: [512, 512]
+            smallest_max_size: 512
+            random_spatial_ratio: 0.2
+            keep_origin_spatial_ratio: 0.3
+

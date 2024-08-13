@@ -21,8 +21,8 @@ model:
       prob_unknow: 0.3
       max_number: 5
 
-    seg_config_file: image_synthesis/modeling/mask2former/configs/coco/panoptic-segmentation/swin/maskformer2_swin_tiny_bs16_50ep.yaml
-    seg_model_weight: /mnt/output/ckpt/mask2former/model_final_swin_t.pkl
+    seg_config_file: image_synthesis/modeling/modules/mask2former/configs/coco/panoptic-segmentation/swin/maskformer2_swin_tiny_bs16_50ep.yaml
+    seg_model_weight: OUTPUT/Mask2Former/checkpoint/model_final_54b88a.pkl
 
     prob_sample:
       seg_prob: 0.25
@@ -38,7 +38,7 @@ model:
     content_codec_config:
       target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchVQGAN
       params:
-        ckpt_path: /mnt/output/ckpt/p_vqvae_ffhq/last.pth
+        ckpt_path: OUTPUT/tpami2024_p_vqvae_ffhq_res256/checkpoint/last.pth
         combine_rec_and_gt: True
         trainable: False
         token_shape: [32, 32]
@@ -72,12 +72,12 @@ model:
 
 
     sketch_param:
-      ckpt_path: /mnt/output/ckpt/DexiNed/10_model.pth
+      ckpt_path: OUTPUT/DexiNed/checkpoint/10_model.pth
 
     sketch_codec_config:
       target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchVQGAN
       params:
-        ckpt_path: /mnt/output/pvqvae_sketch_ffhq_100e/checkpoint/last.pth
+        ckpt_path: OUTPUT/tpami2024_p_vqvae_ffhq_sketch_res256/checkpoint/last.pth 
         trainable: False
         token_shape: [32, 32]
         quantizer_config:
@@ -111,45 +111,45 @@ model:
 
     seg_codec_config:
       target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchVQGAN
-        params:
-          ckpt_path: /mnt/output/pvqvae_seg_ffhq_100e_g8/checkpoint/last.pth
-          trainable: False
-          token_shape: [32, 32]
-          im_process_info:
-            scale: [76.5]
-            mean: [1.0] # imagenet RGB mean
-            std: [1.0]
+      params:
+        ckpt_path: OUTPUT/tpami2024_p_vqvae_ffhq_seg_res256/checkpoint/last.pth
+        trainable: False
+        token_shape: [32, 32]
+        im_process_info:
+          scale: [76.5]
+          mean: [1.0] # imagenet RGB mean
+          std: [1.0]
 
-          quantizer_config:
-            target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.VectorQuantizer
-            params:
-              n_e: 512
-              e_dim: 256
-              masked_embed_start: 512
-              embed_ema: True
-              get_embed_type: retrive
-              distance_type: euclidean
-              gumbel_sample: false
-          
-          encoder_config: 
-            target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchEncoder2
-            params:
-              in_ch: 1
-              res_ch: 256
-              out_ch: 256
-              num_res_block: 8
-              stride: 8
-          decoder_config:
-            target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchConvDecoder2
-            params:
-              in_ch: 256
-              out_ch: 1
-              res_ch: 256
-              num_res_block: 2
-              num_res_block_after_resolution_change: 2
-              stride: 8
-              up_layer_with_image: false
-              upsample_type: nearest
+        quantizer_config:
+          target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.VectorQuantizer
+          params:
+            n_e: 512
+            e_dim: 256
+            masked_embed_start: 512
+            embed_ema: True
+            get_embed_type: retrive
+            distance_type: euclidean
+            gumbel_sample: false
+        
+        encoder_config: 
+          target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchEncoder2
+          params:
+            in_ch: 1
+            res_ch: 256
+            out_ch: 256
+            num_res_block: 8
+            stride: 8
+        decoder_config:
+          target: image_synthesis.modeling.codecs.image_codec.patch_vqgan.PatchConvDecoder2
+          params:
+            in_ch: 256
+            out_ch: 1
+            res_ch: 256
+            num_res_block: 2
+            num_res_block_after_resolution_change: 2
+            stride: 8
+            up_layer_with_image: false
+            upsample_type: nearest
 
 
 solver: # bs8g24

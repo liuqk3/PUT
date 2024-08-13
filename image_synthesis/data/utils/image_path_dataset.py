@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 
 
 class ImagePaths(Dataset):
-    def __init__(self, paths, sketch_paths=None, segmentation_paths=None, labels=None):
+    def __init__(self, paths, sketch_paths=None, segmentation_paths=None, labels=None, mode="RGB"):
 
         self.labels = dict() if labels is None else labels
         self.labels["abs_path"] = paths
@@ -19,6 +19,7 @@ class ImagePaths(Dataset):
             self.labels["sketch_path"] = sketch_paths
         # self._length = len(paths)
         self.valid_index = list(range(len(paths)))
+        self.mode = mode
 
     def __len__(self):
         # return self._length
@@ -27,13 +28,16 @@ class ImagePaths(Dataset):
     def _read_image(self, image_path, type='image'):
         image = Image.open(image_path)
         if type == 'image':
-            if not image.mode == "RGB":
-                image = image.convert("RGB")
+            # if not image.mode == "RGB":
+            #     image = image.convert("RGB")
+            if not image.mode == self.mode:
+                image = image.convert(self.mode)
             image = np.array(image).astype(np.float32) # H x W x 3
         elif type in ['segmentation_map', 'sketch_map']:
             image = np.array(image).astype(np.float32) # H x W
         else:
             raise NotImplementedError
+
         return image
     
 

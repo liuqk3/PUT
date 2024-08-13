@@ -23,7 +23,7 @@ from image_synthesis.modeling.modules.losses.label_smoothing_loss import LabelSm
 # from image_synthesis.modeling.PanopticFCN.PanopticSeg import PanopticSeg, setup_cfg
 from image_synthesis.modeling.modules.DexiNed.model import DexiNed
 # from image_synthesis.modeling.utils.score2seg import score2seg
-from image_synthesis.modeling.modules.inference_mask2former import Mask2Former, setup_cfg
+from image_synthesis.modeling.modules.mask2former.inference_mask2former import Mask2Former, setup_cfg
 
 def trunc_normal_(tensor, mean=0., std=1.):
     __call_trunc_normal_(tensor, mean=mean, std=std, a=-std, b=std)

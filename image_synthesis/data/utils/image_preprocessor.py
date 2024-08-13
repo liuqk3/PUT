@@ -4,7 +4,6 @@ import numpy as np
 from PIL import Image
 import cv2
 from io import BytesIO
-import torchvision.transforms as transforms
 
 class SimplePreprocessor(object):
     def __init__(self,
@@ -18,7 +17,8 @@ class SimplePreprocessor(object):
                  additional_targets=None,
                  max_spatial_ratio=2, # the max spatial ratio, the min spatial ratio is 1
                  random_spatial_ratio=-1, # the probability to sample a random spatial ratio
-                 keep_origin_spatial_ratio=-1 # the probability to keep spatial ratio
+                 keep_origin_spatial_ratio=-1, # the probability to keep spatial ratio
+                 mode='RGB'
                  ):
         """
         This image preprocessor is implemented based on `albumentations`
@@ -26,6 +26,8 @@ class SimplePreprocessor(object):
         if isinstance(size, int): 
             size = (size, size) # height, width
         self.size = size
+
+        self.mode = mode
         
         identity = True
         if size is not None:
@@ -113,7 +115,10 @@ class SimplePreprocessor(object):
                         image = [im[y1:y2, x1:x2] for im in image]
 
                         if k in ['image']:
-                            inter = cv2.INTER_LINEAR
+                            if self.mode == 'L':
+                                inter = cv2.INTER_NEAREST
+                            else:
+                                inter = cv2.INTER_LINEAR
                         elif k in ['mask', 'masks', 'segmentation_map', 'sketch_map']:
                             inter = cv2.INTER_NEAREST
                         else:
@@ -130,4 +135,3 @@ class SimplePreprocessor(object):
                         raise NotImplementedError('Random crop {} is not implemented!'.format(k)) 
         # print(input['image'].shape)
         return self.preprocessor(**input)
-

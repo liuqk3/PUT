@@ -1,9 +1,20 @@
 
-
 ## News
-[10/05/2024] The main branch has been updated to support our TPAMI2024 paper. Currently, only the uncontrollable image inpainting models are provided. The models and the codes for controllable image inpainting will come soon. Please be patient. The origin repository for CVPR2022 paper is avaliable at this [url](https://github.com/liuqk3/PUT/tree/cvpr2022).
+[13/08/2024] The controllable image inpainting is avaliable! In addition, a demo ui is provided to support interactive image editing!
 
-[21/04/2024] The extension paper "Transformer based Pluralistic Image Completion with Reduced Information Loss" has been accepted to TPAMI 2024. The final PDF is avaliable on [arXiv](https://arxiv.org/abs/2404.00513). The improved PUT inpaints images with much better quality with 20x less inference time! The controllable image inpainting is also supported. In addition, more discussions are provided, including the comparison with some popular mask image modeling methods. The code will be updated when I am free. Please be patient.
+<!-- <video width="700" controls>
+  <source src="asset/demo_conditional.mp4" type="video/mp4">
+</video>
+Press the play button to play this video. -->
+<img src="asset/demo_conditional.gif" width=700 />
+
+<details>
+<summary>click here for more news</summary>
+
+- [10/05/2024] The main branch has been updated to support our TPAMI2024 paper. Currently, only the uncontrollable image inpainting models are provided. The models and the codes for controllable image inpainting will come soon. Please be patient. The origin repository for CVPR2022 paper is avaliable at this [url](https://github.com/liuqk3/PUT/tree/cvpr2022).
+
+- [21/04/2024] The extension paper "Transformer based Pluralistic Image Completion with Reduced Information Loss" has been accepted to TPAMI 2024. The final PDF is avaliable on [arXiv](https://arxiv.org/abs/2404.00513). The improved PUT inpaints images with much better quality with 20x less inference time! The controllable image inpainting is also supported. In addition, more discussions are provided, including the comparison with some popular mask image modeling methods. The code will be updated when I am free. Please be patient.
+</details>
 
 ## Introduction
 
@@ -54,6 +65,7 @@ Ref. [install_instruction.sh](readme/install_instruction.sh).
 
 ## Training
 
+### Untrollable image inpainting
 For each dataset, the training procedure is divideded into two stages: (1) Training of P-VQVAE, and (2) Training of UQ-Transformer. And the training of UQ-Transformer needs the pre-trained P-VQVAE. The training command is very simple like this:
 
 ```
@@ -75,6 +87,17 @@ python train_net --name cvpr2022_p_vqvae_ffhq --config_file configs/put_cvpr2022
 NOTE: The training settings are total controlled by the given yaml config file. So making a good yaml config file is quite important! The trained logs, models, and sampled images are all saved to `./OUTPUT/exp_name`.
 
 The default training commands are provided in [scripts/train_commands_cvpr2022.sh](scripts/train_commands_cvpr2022.sh) and [scripts/train_commands_tpami2024.sh](scripts/train_commands_tpami2024.sh). Note that the batch size, number of nodes, and the number of GPUs should be adjusted according to your machine.
+
+### Untrollable image inpainting
+Based on the pretrained image P-VQVAE in untrollable image inpainting, three stages are additional required for each dataset: 
+
+- Train semantice P-VQVAE for the encoding of segmentation map; 
+
+- Train structure P-VQVAE for the encoding of sketch map; 
+
+- Train UQ-Transformer with the pretrained image P-VQVAE, semantic encoder and structure encoder. 
+
+Note that the training of semantic and structure P-VQVAEs requires additional data. Please refer to [prepare_data](readme/prepare_data.md) for more details. Once the data has been prepared, the training commands are also very simple. Please refer to [`scripts/train_commands_tpami2024_conditional.sh`](scripts/train_commands_tpami2024_conditional.sh) for example.
 
 
 ## Inference
@@ -117,6 +140,22 @@ The diversity can be evaluted by:
 python scripts/metrics/cal_lpips.py  --path1 path/to/results_dir  --device cuda:0
 ```
 
+##  Interactive Controllable Inpainting
+Interactive controllable inpainting is supported with `scripts/image_completion_with_ui_conditional.py`. Before that, you need to download several pretrained models:
+
+- DexiNed, which is used to get the sketch from provided image. It can be downloaded from [BaiduYunpan](https://pan.baidu.com/s/1QoxqW66au7wVRqk3POQung) (code: `6po2`). Put the downloaded model weights to `./OUTPUT/DexiNed`.
+
+- Mask2Former, which is used to get the semantic segmentation map from the provided image. It can be downloaded from [BaiduYunpan](https://pan.baidu.com/s/1QoxqW66au7wVRqk3POQung) (code: `6po2`). Put the downloaded model weights to `./OUTPUT/Mask2Former`.
+
+- The pretrained transformers `tpami2024_vit_base_ffhq_seg_sketch_dual_encoder_res256`, `tpami2024_vit_base_naturalscene_seg_sketch_dual_encoder_res256` and `tpami2024_vit_base_imagenet_seg_sketch_dual_encoder_res256` for controllable inpainting. They also can be downloaded from [BaiduYunpan](https://pan.baidu.com/s/1QoxqW66au7wVRqk3POQung) (code: `6po2`). Put the downloaded model weights to `./OUTPUT`.
+
+Then You can simply run the following commands:
+```
+python scripts/image_completion_with_ui_conditional.py --name tpami2024_ffhq_256 --num_samples 8  --num_token_per_iter 10 --topk 200 --batch_size 4 --save_dir RESULT/inpainting_with_ui/ffhq_conditional --im_path data/ffhq_256_sample/gt --mask_path data/ffhq_256_sample/mr0.5_0.6 --ui
+```
+
+- More commands are provided in [`scripts/inference_commands_ui_conditional.sh`](scripts/inference_commands_ui_conditional.sh).
+- For how to use this demo ui, please refer to [`asset/demo_conditional.mp4`](asset/demo_conditional.mp4).
 
 ## Citation
 

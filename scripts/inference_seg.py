@@ -127,8 +127,6 @@ def inference_seg(local_rank=0, args=None):
     os.makedirs(save_root_tmp, exist_ok=True)
     print('results will be saved in {}'.format(save_root_tmp))
     
-    processed_image = get_all_file(save_root, end_with='.png', path_type='relative')
-
     data = ImagePathDataset(image_dir=args.image_dir)
 
     if args.world_size > 1:

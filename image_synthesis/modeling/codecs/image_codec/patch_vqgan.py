@@ -14,7 +14,7 @@ from image_synthesis.distributed.distributed import all_reduce, get_world_size
 from image_synthesis.modeling.modules.edge_connect.losses import EdgeConnectLoss
 from image_synthesis.modeling.modules.layers.partial_conv2d import PartialConv2d
 from image_synthesis.modeling.utils.misc import logits_top_k
-
+from copy import deepcopy
 
 def value_scheduler(init_value, dest_value, step, step_range, total_steps, scheduler_type='cosine'):
     assert scheduler_type in ['cosine', 'step'], 'scheduler {} not implemented!'.format(scheduler_type)
@@ -1023,11 +1023,11 @@ class PatchVQGAN(BaseCodec):
             assert self.encoder.out_channels == self.quantize.e_dim, "the channels for quantization shoule be the same"
             self.quant_conv = nn.Identity()
         self.post_quant_conv = torch.nn.Conv2d(self.quantize.e_dim, self.decoder.in_channels, 1)
-        self.im_process_info = im_process_info
+        self.im_process_info = deepcopy(im_process_info)
         for k, v in self.im_process_info.items():
             v = torch.tensor(v).view(1, -1, 1, 1)
-            if v.shape[1] != 3:
-                v = v.repeat(1, 3, 1, 1)
+            if v.shape[1] != encoder_config['params']['in_ch']:
+                v = v.repeat(1, encoder_config['params']['in_ch'], 1, 1)
             self.im_process_info[k] = v
     
         if lossconfig is not None and trainable:

@@ -324,6 +324,27 @@ def distributed_sinkhorn(out, epsilon=0.05, iterations=3):
     Q *= B # the colomns must sum to 1 so that Q is an assignment
     return Q.t() # B x K
 
+
+def image_normalization(img, img_min=0, img_max=255,
+                        epsilon=1e-12):
+    """This is a typical image normalization function
+    where the minimum and maximum of the image is needed
+    source: https://en.wikipedia.org/wiki/Normalization_(image_processing)
+
+    :param img: an image could be gray scale or color
+    :param img_min:  for default is 0
+    :param img_max: for default is 255
+
+    :return: a normalized image, if max is 255 the dtype is uint8
+    """
+
+    # img = np.float32(img)
+    # whenever an inconsistent image
+    img = (img - torch.min(img)) * (img_max - img_min) / \
+        ((torch.max(img) - torch.min(img)) + epsilon) + img_min
+    return img
+    
+
 if __name__ == '__main__':
 
     import cv2

@@ -1,3 +1,4 @@
+from dataclasses import replace
 import os
 import numpy as np
 import yaml
@@ -27,6 +28,38 @@ def my_print(info, logger=None):
         print(info)
     else:
         logger.log_info(info)
+
+
+def seg2unknown(seg_map, unknow_class_param):
+
+    d_type = seg_map.dtype
+    seg_map = seg_map.astype(np.uint8)
+    # cnt = 0
+    replace_cnt = np.random.randint(low=1, high=unknow_class_param['max_number'])
+
+    # probability to add unknown token
+    p = np.random.uniform(low=0, high=1)
+
+    num_unknow_class = unknow_class_param['num_unknow_classes']
+    unknown_class_start = unknow_class_param['unknow_start']
+
+    if p < unknow_class_param['prob_unknow']:
+
+        lb_known = list(np.unique(seg_map))
+        replace_cnt = min(replace_cnt, len(lb_known))
+        lb_unknown = [i for i in range(unknown_class_start, num_unknow_class+unknown_class_start)]
+
+        for i in range(replace_cnt):
+            replace_class = np.random.choice(lb_known)
+            lb_uk = np.random.choice(lb_unknown)
+
+            mark = (seg_map == replace_class).astype(seg_map.dtype)
+            seg_map = (1 - mark) * seg_map + mark * lb_uk
+            lb_unknown.remove(lb_uk)
+            lb_known.remove(replace_class)
+
+    seg_map = seg_map.astype(np.float32)
+    return seg_map
 
 
 class ImageListDataset(Dataset):
@@ -63,6 +96,8 @@ class ImageListDataset(Dataset):
                  multi_image_mask=False, # if true, the returned image will be multiplied by the mask
                  erase_image_with_mask=-1.0, # the probability to erase some pixels with erase mask
                  return_data_keys=None,
+                 mode="RGB",
+                 unknow_class_param=None,
                  ):
         super().__init__()
         self.name = name
@@ -77,6 +112,10 @@ class ImageListDataset(Dataset):
             data_root = 'data'
         self.data_root = data_root
 
+        self.unknown_class_param = unknow_class_param
+
+        self.mode = mode
+
         # get image file
         image_relative_paths = self.get_file_list(root=os.path.join(data_root, name), name=name, file_list=image_list_file, file_end_with=image_end_with)
         image_paths = [os.path.join(data_root, name, relpath) for relpath in image_relative_paths]
@@ -85,17 +124,22 @@ class ImageListDataset(Dataset):
             # import pdb; pdb.set_trace()
             semgmentation_paths = self.get_file_list(root=os.path.join(self.data_root, 'segmentation', name), name=name, file_list=image_list_file, file_end_with='.png', path_type='abs')
             # semgmentation_paths = self.get_file_list(root=os.path.join(self.data_root, 'sketch', name), name=name, file_list=image_list_file, file_end_with='.png', path_type='abs')
+            if image_list_file != '':
+                semgmentation_paths = [os.path.join(self.data_root, 'segmentation', name, relpath) for relpath in semgmentation_paths]
+            
             assert len(semgmentation_paths) == len(image_paths), 'the number of segmentation maps should be the same with images, image: {}, maps: {}'.format(len(image_paths), len(semgmentation_paths))
         else:
             semgmentation_paths = None
         
         if load_sketch_map:
             sketch_paths = self.get_file_list(root=os.path.join(self.data_root, 'sketch', name), name=self.name, file_list=image_list_file, file_end_with='.png', path_type='abs')
+            if image_list_file != '':
+                sketch_paths = [os.path.join(self.data_root, 'sketch', name, relpath) for relpath in sketch_paths]
             assert len(sketch_paths) == len(image_paths), 'the number of sketch maps should be the same with images, image: {}, maps: {}'.format(len(image_paths), len(sketch_paths))
         else:
             sketch_paths = None
             
-        self.data = ImagePaths(paths=image_paths, sketch_paths=sketch_paths, segmentation_paths=semgmentation_paths, labels={'relative_path': image_relative_paths})
+        self.data = ImagePaths(paths=image_paths, sketch_paths=sketch_paths, segmentation_paths=semgmentation_paths, labels={'relative_path': image_relative_paths}, mode=mode)
 
         # get preprocessor
         self.preprocessor = instantiate_from_config(im_preprocessor_config)
@@ -249,7 +293,16 @@ class ImageListDataset(Dataset):
                 augmented_data = self.preprocessor(image=image, masks=maps)
             else:
                 augmented_data = self.preprocessor(image=image)
-            data['image'] = np.transpose(augmented_data['image'].astype(np.float32), (2, 0, 1)) # 3 x H x W
+
+            if self.mode == 'L':
+                data['image'] = augmented_data['image'].astype(np.float32)[np.newaxis, :, :]
+                if self.unknown_class_param is not None:
+                    data['image'] = seg2unknown(data['image'], self.unknown_class_param)
+            elif self.mode == 'RGB':
+                data['image'] = np.transpose(augmented_data['image'].astype(np.float32), (2, 0, 1)) # 3 x H x W
+            else:
+                raise NotImplementedError
+            # data['image'] = np.transpose(augmented_data['image'].astype(np.float32), (2, 0, 1)) # 3 x H x W
             for i in range(len(map_keys)):
                 # import pdb; pdb.set_trace()
                 data[map_keys[i]] = augmented_data['masks'][i].astype(np.float32)[None, :, :] # 1 x H x W
@@ -327,7 +380,8 @@ if __name__ == '__main__':
     from image_synthesis.utils.misc import instantiate_from_config
     from image_synthesis.utils.io import load_yaml_config
 
-    config_path = 'configs/test_image_segmentation_sketch.yaml'
+    # config_path = 'configs/test_image_segmentation_sketch.yaml'
+    config_path = 'configs/test_seg_only.yaml'
     dataset_config = load_yaml_config(config_path)
     dataset_config = dataset_config['dataloader']['train_datasets'][0]
     dataset = instantiate_from_config(dataset_config)
@@ -354,5 +408,4 @@ if __name__ == '__main__':
         while cv2.waitKey(0) == 27:
             import sys
             sys.exit(0)
-
 

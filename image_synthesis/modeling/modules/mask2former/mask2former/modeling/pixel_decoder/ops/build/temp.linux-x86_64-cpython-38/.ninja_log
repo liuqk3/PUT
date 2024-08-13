@@ -1,0 +1,4 @@
+# ninja log v5
+0	3733	1687783015449085731	/home/jiangyuqi/image-synthesis/image_synthesis/modeling/mask2former/mask2former/modeling/pixel_decoder/ops/build/temp.linux-x86_64-cpython-38/home/jiangyuqi/image-synthesis/image_synthesis/modeling/mask2former/mask2former/modeling/pixel_decoder/ops/src/cpu/ms_deform_attn_cpu.o	b6b1ad70e28813a9
+0	9465	1687783021181160426	/home/jiangyuqi/image-synthesis/image_synthesis/modeling/mask2former/mask2former/modeling/pixel_decoder/ops/build/temp.linux-x86_64-cpython-38/home/jiangyuqi/image-synthesis/image_synthesis/modeling/mask2former/mask2former/modeling/pixel_decoder/ops/src/cuda/ms_deform_attn_cuda.o	2fbee4ea43a8ee5c
+0	14365	1687783026077224207	/home/jiangyuqi/image-synthesis/image_synthesis/modeling/mask2former/mask2former/modeling/pixel_decoder/ops/build/temp.linux-x86_64-cpython-38/home/jiangyuqi/image-synthesis/image_synthesis/modeling/mask2former/mask2former/modeling/pixel_decoder/ops/src/vision.o	ef97b89b9dcd9081

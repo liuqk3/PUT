@@ -8,7 +8,6 @@ import random
 from torch.utils.data import Dataset
 from PIL import Image
 from image_synthesis.data.utils.image_path_dataset import ImagePaths
-import image_synthesis.data.utils.imagenet_utils as imagenet_utils
 from image_synthesis.utils.misc import instantiate_from_config, get_all_file
 from image_synthesis.data.utils.util import generate_mask_based_on_landmark, generate_stroke_mask, rgba_to_depth, visualize_depth
 from image_synthesis.utils.io import load_dict_from_json

@@ -170,7 +170,7 @@ If you find our paper/code are helpful, please consider citing:
   year={2024},
   volume={46},
   number={10},
-  pages={665-6668},
+  pages={6652-6668},
   doi={10.1109/TPAMI.2024.3384406},
   publisher={IEEE}
 }
